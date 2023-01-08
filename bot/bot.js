@@ -40,12 +40,12 @@ for (const file of commandFiles) {
 }
 
 client.once(Events.ClientReady, (c) => {
-    console.log(`Client logged in as ${c.user.tag}`);
+    Log.info(`Client logged in as ${c.user.tag}`);
 });
 
 client.on(Events.MessageCreate, (msg) => {
     if (msg.author.bot) return;
-    console.log(msg.content);
+    Log.info(msg.content);
 })
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -55,15 +55,15 @@ client.on(Events.InteractionCreate, async interaction => {
     try {
         await command.execute(interaction);
     } catch (error) {
-        console.log(error);
+        Log.error(error);
         await interaction.reply({content: "There was an error. Whoops", ephemeral:true});
     }
 })
 
 function login(token) {
     client.login(token).catch(err => {
-        console.log(err);
-        console.log("Retrying Login..");
+        Log.error(err);
+        Log.info("Retrying Login..");
         setTimeout(login, 4000);
     })
 }
