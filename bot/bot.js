@@ -2,7 +2,27 @@ const {DISCORD_TOKEN} = require("./config.json");
 const {Client, Events, GatewayIntentBits, Collection} = require("discord.js");
 const path = require("path");
 const fs = require("fs");
+const winston = require("winston");
+const Log = winston.createLogger({
+    level: "info",
+    format: winston.format.json(),
+    defaultMeta: {service: "bailiff-bot"},
+    transports : [
+        new winston.transports.File({
+            filename: "bot_error.log",
+            level:"error",
+            format:winston.format.timestamp(),
+            tailable: true
+        }),
+        new winston.transports.File({
+            filename: "bot_combined.log",
 
+        }),
+        new winston.transports.Console({
+
+        })
+    ]
+})
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
