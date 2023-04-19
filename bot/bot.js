@@ -26,6 +26,9 @@ const Log = winston.createLogger({
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions,
+
     ]
 });
 
@@ -50,6 +53,7 @@ client.on(Events.MessageCreate, (msg) => {
 
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
+    Log.info(`Interaction: ${interaction.commandName}`);
     const command = client.commands.get(interaction.commandName);
     if(!command) return;
     try {

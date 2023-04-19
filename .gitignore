@@ -1,0 +1,4 @@
+/node_modules/
+/bot/config.json
+/bot_combined.log
+/bot_error.log

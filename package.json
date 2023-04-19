@@ -1,0 +1,15 @@
+{
+  "name": "bailiff",
+  "version": "1.0.0",
+  "description": "Testing Bot for The Judge",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tushar",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.7.1",
+    "winston": "^3.8.2"
+  }
+}
