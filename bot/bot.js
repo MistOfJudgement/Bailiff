@@ -1,5 +1,5 @@
 const {DISCORD_TOKEN} = require("./config.json");
-const {Client, Events, GatewayIntentBits, Collection} = require("discord.js");
+const {Client, GatewayIntentBits, Collection} = require("discord.js");
 const path = require("path");
 const fs = require("fs");
 const winston = require("winston");
@@ -32,6 +32,7 @@ const client = new Client({
     ]
 });
 
+
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands");
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(".js"));
@@ -42,27 +43,20 @@ for (const file of commandFiles) {
     client.commands.set(command.data.name, command);
 }
 
-client.once(Events.ClientReady, (c) => {
-    Log.info(`Client logged in as ${c.user.tag}`);
-});
+const eventsPath = path.join(__dirname, "events");
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith(".js"));
 
-client.on(Events.MessageCreate, (msg) => {
-    if (msg.author.bot) return;
-    Log.info(msg.content);
-})
-
-client.on(Events.InteractionCreate, async interaction => {
-    if (!interaction.isChatInputCommand()) return;
-    Log.info(`Interaction: ${interaction.commandName}`);
-    const command = client.commands.get(interaction.commandName);
-    if(!command) return;
-    try {
-        await command.execute(interaction);
-    } catch (error) {
-        Log.error(error);
-        await interaction.reply({content: "There was an error. Whoops", ephemeral:true});
+for (const file of eventFiles) {
+    const filePath = path.join(eventsPath, file);
+    const event = require(filePath);
+    event.Log = Log;
+    if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args, client));
+    } else {
+        client.on(event.name, (...args) => event.execute(...args, client));
     }
-})
+}
+
 
 function login(token) {
     client.login(token).catch(err => {
