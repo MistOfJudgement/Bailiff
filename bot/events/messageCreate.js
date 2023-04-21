@@ -1,5 +1,7 @@
-const {Events} = require("discord.js");
-const audio = require("../audio.js");
+import {Events} from "discord.js";
+
+import audio from "../audio.js";
+
 module.exports = {
     name: Events.MessageCreate,
     once: false,

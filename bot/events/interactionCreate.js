@@ -1,4 +1,5 @@
-const {Events} = require("discord.js");
+import {Events} from "discord.js";
+
 
 module.exports = {
     name: Events.InteractionCreate,

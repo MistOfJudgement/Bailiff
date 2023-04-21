@@ -1,9 +1,11 @@
-const {
+import {
     GatewayDispatchEvents,
     GatewayVoiceServerUpdateDispatchData,
-    GatewayVoiceStateUpdateDispatchData,
-} = require('discord-api-types/v10');
-const { Snowflake, Client, Guild, VoiceBasedChannel, Constants } = require( 'discord.js');
+    GatewayVoiceStateUpdateDispatchData
+} from "discord-api-types/v10";
+
+import {Client, Constants, Guild, Snowflake, VoiceBasedChannel} from "discord.js";
+
 
 const { Events, Status } = Constants;
 

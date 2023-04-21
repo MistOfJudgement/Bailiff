@@ -1,8 +1,16 @@
-const {DISCORD_TOKEN} = require("./config.json");
-const {Client, GatewayIntentBits, Collection} = require("discord.js");
-const path = require("path");
-const fs = require("fs");
-const winston = require("winston");
+import DISCORD_TOKEN from "./config.json" assert {type: "json"};
+
+import {Client, Collection, GatewayIntentBits} from "discord.js";
+
+import winston from "winston";
+
+import fs from "fs";
+
+import path from "path";
+import {fileURLToPath} from "url";
+
+import {createRequire} from "module";
+const require = createRequire(import.meta.url);
 const Log = winston.createLogger({
     level: "info",
     format: winston.format.json(),
@@ -33,7 +41,8 @@ const client = new Client({
 
     ]
 });
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands");
@@ -41,7 +50,8 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith("
 
 for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
+    // const command = require(filePath);
+    const command = await import(filePath);
     client.commands.set(command.data.name, command);
 }
 

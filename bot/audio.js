@@ -1,13 +1,14 @@
-const {
-    joinVoiceChannel,
+import {
+    AudioPlayerStatus,
     createAudioPlayer,
     createAudioResource,
     entersState,
-    StreamType,
-    AudioPlayerStatus,
-    VoiceConnectionStatus,
-} = require('@discordjs/voice');
-const {createDiscordJSAdapter} =  require("./adapter");
+    joinVoiceChannel,
+    StreamType, VoiceConnectionStatus
+} from "@discordjs/voice";
+
+import {createDiscordJSAdapter} from "./adapter";
+
 
 const player = createAudioPlayer();
 
