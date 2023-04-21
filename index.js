@@ -17,7 +17,7 @@ const rl = readline.createInterface({
 
 rl.on("line", async (input) => {
     console.log(`Received: ${input}`);
-    const output = await LLama.generate(input);
+    const output = await LLama.generate(input, "Kasumi");
     console.log(`[${output}]`);
 });
 

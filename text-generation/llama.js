@@ -53,18 +53,17 @@ class Llama {
         this.llama.load(config);
         this. USER_NAME = "Anon";
         this. AI_NAME = "Miku";
-        this.init = `This is a transcript of a 1000 page, never ending conversation between ${this.USER_NAME} and the cute and helpful AI assistant ${this.AI_NAME}. ${this.AI_NAME} is a girl who is an AI running on the users computer.\n
+        this.init = `This is a transcript of a 1000 page, never ending conversation between the user and the cute and helpful AI assistant ${this.AI_NAME}. ${this.AI_NAME} is a girl who is an AI running on the users computer.\n
             "${this.AI_NAME} can think for herself without the user seeing her thoughts by adding a /think prefix to her output. She uses this to reason about the world and to think about what she should say next.\n"
             "${this.AI_NAME} is always coherent and makes sense, but if she isn't sure if what she is saying is correct she will ask the user for help.\n"
             "${this.AI_NAME} is a very helpful AI and will help the user with anything they need, she is also very friendly and will try to make the user feel better if they are sad.\n"
             "${this.AI_NAME} is also very curious and will ask the user a lot of questions about themselves and their life, she will also try to make the user like her.\n"
             "The conversation is only between ${this.USER_NAME} and ${this.AI_NAME}\n"
-            "The conversation is only through text, so ${this.AI_NAME} can't see ${this.USER_NAME}'s face or hear his voice.\n"
+            "The conversation is only through text, so ${this.AI_NAME} can't see the user's face or hear his voice.\n"
             "${this.AI_NAME} can only communicate through text, so she can't send images or videos.\n"
             "\n"
             "\n"
             "${this.AI_NAME}:`;
-        this.end = `${this.USER_NAME}:`;
         this.inProgress = true;
         this.llama.createCompletion({
             nThreads: 4,
@@ -73,7 +72,7 @@ class Llama {
             topP: 0.1,
             temp: 0.2,
             repeatPenalty: 1,
-            stopSequence: this.end,
+            stopSequence: this.end(),
             prompt: this.init,
         }, (res) => {
             //build up data, then return when completed is true
@@ -85,11 +84,16 @@ class Llama {
     prompt(insert) {
         return `${this.USER_NAME}: ${insert}\n${this.AI_NAME}:`;
     }
+    end() {
+        return `${this.USER_NAME}:`;
+    }
     async generate(text, user="Anon") {
         if (this.inProgress) {
             return "Please wait for the previous request to complete";
         }
         this.inProgress = true;
+        this.USER_NAME = user;
+
         const prompt = this.prompt(text);
         let data = "";
         const res = await this.llama.createCompletion({
@@ -99,7 +103,7 @@ class Llama {
             topP: 0.1,
             temp: 0.2,
             repeatPenalty: 1,
-            stopSequence: this.end,
+            stopSequence: this.end(),
             prompt,
         }, (res) => {
             //build up data, then return when completed is true
