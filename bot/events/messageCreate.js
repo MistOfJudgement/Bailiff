@@ -1,8 +1,6 @@
 import {Events} from "discord.js";
 
-import audio from "../audio.js";
-
-module.exports = {
+export default {
     name: Events.MessageCreate,
     once: false,
     Log: console,

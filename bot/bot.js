@@ -9,7 +9,7 @@ import fs from "fs";
 import path from "path";
 import {fileURLToPath} from "url";
 
-import {createRequire} from "module";
+import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const Log = winston.createLogger({
     level: "info",
@@ -49,9 +49,11 @@ const commandsPath = path.join(__dirname, "commands");
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(".js"));
 
 for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
+    let filePath = path.join(commandsPath, file);
     // const command = require(filePath);
-    const command = await import(filePath);
+    filePath = "file:///" + filePath.replace(/\\/g, "/");
+    const {default : command} = await import(filePath);
+
     client.commands.set(command.data.name, command);
 }
 
@@ -59,8 +61,9 @@ const eventsPath = path.join(__dirname, "events");
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith(".js"));
 
 for (const file of eventFiles) {
-    const filePath = path.join(eventsPath, file);
-    const event = require(filePath);
+    let filePath = path.join(eventsPath, file);
+    filePath = "file:///" + filePath.replace(/\\/g, "/");
+    const {default : event} = await import(filePath);
     event.Log = Log;
     if (event.once) {
         client.once(event.name, (...args) => event.execute(...args, client));

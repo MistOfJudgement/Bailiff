@@ -1,7 +1,6 @@
 import {SlashCommandBuilder} from "discord.js";
 
-
-module.exports = {
+const temp = {
     data: new SlashCommandBuilder()
         .setName("ping")
         .setDescription("it will ping you"),
@@ -9,3 +8,4 @@ module.exports = {
         return interaction.reply(`get pinged idot <@${interaction.user.id}>`);
     }
 }
+export default temp;
