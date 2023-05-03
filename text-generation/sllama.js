@@ -12,7 +12,7 @@ class LLama{
 		if(this.serverProcess) {
 			return;
 		}
-		this.serverProcess = spawn("sh", ["./llama.sh"]);
+		this.serverProcess = spawn("sh", ["./text-generation/llamaServer.sh"]);
 	}
 
 	exit() {
