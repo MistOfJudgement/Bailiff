@@ -1,5 +1,5 @@
-import DISCORD_TOKEN from "./config.json" assert {type: "json"};
-
+import secret from "./config.json" assert {type: "json"};
+const {DISCORD_TOKEN} = secret;
 import {Client, Collection, GatewayIntentBits} from "discord.js";
 
 import winston from "winston";
