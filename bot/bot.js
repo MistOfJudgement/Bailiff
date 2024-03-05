@@ -1,8 +1,7 @@
-import DISCORD_TOKEN from "./config.json" assert {type: "json"};
-
+import config from "./config.json" assert {type: "json"};
+const {DISCORD_TOKEN} = config;
 import {Client, Collection, GatewayIntentBits} from "discord.js";
 
-import winston from "winston";
 
 import fs from "fs";
 
@@ -11,26 +10,8 @@ import {fileURLToPath} from "url";
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const Log = winston.createLogger({
-    level: "info",
-    format: winston.format.json(),
-    defaultMeta: {service: "bailiff-bot"},
-    transports : [
-        new winston.transports.File({
-            filename: "bot_error.log",
-            level:"error",
-            format:winston.format.timestamp(),
-            tailable: true
-        }),
-        new winston.transports.File({
-            filename: "bot_combined.log",
 
-        }),
-        new winston.transports.Console({
-
-        })
-    ]
-})
+import Log from "../log.js";
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -45,6 +26,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 client.commands = new Collection();
+client.messageCommands = new Collection();
 const commandsPath = path.join(__dirname, "commands");
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(".js"));
 
@@ -53,8 +35,13 @@ for (const file of commandFiles) {
     // const command = require(filePath);
     filePath = "file:///" + filePath.replace(/\\/g, "/");
     const {default : command} = await import(filePath);
-
-    client.commands.set(command.data.name, command);
+    if(command.type === "message") {
+        Log("Loading command: " + command.name);
+        client.messageCommands.set(command.name, command);
+    } else {
+        Log("Loading slash command: " + command.data.name);
+        client.commands.set(command.data.name, command);
+    }
 }
 
 const eventsPath = path.join(__dirname, "events");
@@ -64,7 +51,7 @@ for (const file of eventFiles) {
     let filePath = path.join(eventsPath, file);
     filePath = "file:///" + filePath.replace(/\\/g, "/");
     const {default : event} = await import(filePath);
-    event.Log = Log;
+    Log("Loading event: " + event.name);
     if (event.once) {
         client.once(event.name, (...args) => event.execute(...args, client));
     } else {
@@ -72,13 +59,22 @@ for (const file of eventFiles) {
     }
 }
 
-
+let tries = 0;
 function login(token) {
     client.login(token).catch(err => {
-        Log.error(err);
-        Log.info("Retrying Login..");
-        setTimeout(login, 4000);
+        Log(err);
+        Log("Retrying Login..");
+        if (tries < 5) {
+            tries++;
+            setTimeout(login, 4000);
+
+        }
     })
 }
-
+//on control c
+process.on('SIGINT', async function() {
+    Log("Caught interrupt signal");
+    await client.destroy();
+    process.exit();
+});
 login(DISCORD_TOKEN);

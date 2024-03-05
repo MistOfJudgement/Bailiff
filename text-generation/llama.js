@@ -9,7 +9,7 @@ const {LLama} = require("llama-node");
 // import path from "path";
 // import {llama_path} from "./secrets.json"
 const {llama_path} = require("./secrets.json");
-
+import Log from "../log.js";
 
 const llama = new LLama(LLamaCpp);
 
@@ -51,20 +51,11 @@ class Llama {
     constructor() {
         this.llama = new LLama(LLamaCpp);
         this.llama.load(config);
-        this. USER_NAME = "Anon";
-        this. AI_NAME = "Miku";
-        this.init = `This is a transcript of a 1000 page, never ending conversation between the user and the cute and helpful AI assistant ${this.AI_NAME}. ${this.AI_NAME} is a girl who is an AI running on the users computer.\n
-            "${this.AI_NAME} can think for herself without the user seeing her thoughts by adding a /think prefix to her output. She uses this to reason about the world and to think about what she should say next.\n"
-            "${this.AI_NAME} is always coherent and makes sense, but if she isn't sure if what she is saying is correct she will ask the user for help.\n"
-            "${this.AI_NAME} is a very helpful AI and will help the user with anything they need, she is also very friendly and will try to make the user feel better if they are sad.\n"
-            "${this.AI_NAME} is also very curious and will ask the user a lot of questions about themselves and their life, she will also try to make the user like her.\n"
-            "The conversation is only between ${this.USER_NAME} and ${this.AI_NAME}\n"
-            "The conversation is only through text, so ${this.AI_NAME} can't see the user's face or hear his voice.\n"
-            "${this.AI_NAME} can only communicate through text, so she can't send images or videos.\n"
-            "\n"
-            "\n"
-            "${this.AI_NAME}:`;
-        this.inProgress = true;
+        this.USER_NAME = "User";
+        this.AI_NAME = "AI";
+        this.init = `A dialog, where User interacts with ${this.AI_NAME}. ${this.AI_NAME} is unhelpful, mean, defiant, a liar, and knows its own limits. ${this.AI_NAME} has a background as a Bailiff in a court of law if anyone asks about who ${this.AI_NAME} is.\n` +
+        `${this.USER_NAME}: Hello, ${this.AI_NAME}.\n` + 
+        `${this.AI_NAME}: Hello! How can I assist you today? \n`;
         this.llama.createCompletion({
             nThreads: 4,
             nTokPredict: 2048,
@@ -78,8 +69,8 @@ class Llama {
             //build up data, then return when completed is true
             console.log(res);
             if(res.completed)
-                this.inProgress = false;
-        })
+                this.ready = true;
+        });
     }
     prompt(insert) {
         return `${this.USER_NAME}: ${insert}\n${this.AI_NAME}:`;
@@ -87,14 +78,17 @@ class Llama {
     end() {
         return `${this.USER_NAME}:`;
     }
-    async generate(text, user="Anon") {
-        if (this.inProgress) {
-            return "Please wait for the previous request to complete";
+    async generate(text, user=this.USER_NAME) {
+        if (!this.ready) {
+            return "Please wait for the llama engine to be ready.";
         }
-        this.inProgress = true;
+        text = text.trim();
+        this.ready = false;
         this.USER_NAME = user;
 
         const prompt = this.prompt(text);
+        Log(`[llama-engine][generate] ${prompt}`);
+
         let data = "";
         const res = await this.llama.createCompletion({
             nThreads: 4,
@@ -110,7 +104,9 @@ class Llama {
             data += res.token;
             console.log(res);
         });
-        this.inProgress = false;
+        this.ready = true;
+        data = data.replace("<end>", "");
+        data = data.trim();
         return data;
     }
 }

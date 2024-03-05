@@ -5,7 +5,9 @@
   "dependencies": {
     "@discordjs/voice": "^0.16.0",
     "discord-api-types": "^0.37.39",
-    "discord.js": "^14.9.0",
+    "discord.js": "^14.11.0",
+    "ffmpeg-static": "^5.1.0",
+    "gpt4all": "^3.1.0",
     "llama-node": "^0.0.28",
     "node": "^19.8.1",
     "npm": "^9.6.5",

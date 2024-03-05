@@ -10,6 +10,7 @@ const commandsFiles = fs.readdirSync("./commands").filter(file=> file.endsWith("
 
 for (const file of commandsFiles) {
     const command = require(`./commands/${file}`);
+    if(command?.type === "message") continue;
     commands.push(command.data.toJSON());
 }
 
